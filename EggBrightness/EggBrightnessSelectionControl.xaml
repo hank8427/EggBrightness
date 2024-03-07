@@ -1,0 +1,89 @@
+﻿<UserControl x:Class="EggBrightness.EggBrightnessSelectionControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:EggBrightness"
+             mc:Ignorable="d" 
+             DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="400"/>
+            <RowDefinition/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.Resources>
+            <Style TargetType="TextBlock">
+                <Setter Property="FontSize" Value="30"/>
+            </Style>
+            <Style TargetType="TextBox">
+                <Setter Property="FontSize" Value="30"/>
+                <Setter Property="Width" Value="100"/>
+                <Setter Property="Height" Value="50"/>
+            </Style>
+            <Style TargetType="local:ImageSelectControl">
+                <Setter Property="Width" Value="630"/>
+            </Style>
+        </Grid.Resources>
+
+        <GroupBox Header="Image Input" Grid.ColumnSpan="3" Margin="5" BorderThickness="3">
+            <WrapPanel>
+                <local:ImageSelectControl DataContext="{Binding FirstImageViewModel}" x:Name="First"/>
+                <local:ImageSelectControl DataContext="{Binding SecondImageViewModel}" x:Name="Second"/>
+                <local:ImageSelectControl DataContext="{Binding ThirdImageViewModel}" x:Name="Third"/>
+            </WrapPanel>
+        </GroupBox>
+
+        <GroupBox Header="Combine" Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="2" Margin="5" BorderThickness="3">
+            <StackPanel Margin="10">
+                <StackPanel >
+                    <Button Content="Combine" Width="100" Height="40" Click="Combine_OnClick"/>
+                    <Image Source="{Binding CombinedImage}" Height="470" Margin="5"/>
+                </StackPanel>
+
+                <WrapPanel HorizontalAlignment="Center">
+                    <TextBlock Text="{Binding LeftIndex, StringFormat=L : {0}}" Height="50" Width="100" Margin="50,0,0,0"/>
+                    <TextBlock Text="{Binding MiddleIndex, StringFormat=M : {0}}" Height="50" Width="100" Margin="250,0,0,0"/>
+                    <TextBlock Text="{Binding RightIndex, StringFormat=R : {0}}" Height="50" Width="100" Margin="250,0,0,0"/>
+                </WrapPanel>
+            </StackPanel>
+        </GroupBox>
+
+        <StackPanel Grid.Row="1">
+            <GroupBox Header="Camera Selection"  Margin="5" BorderThickness="3" Height="180">
+                <WrapPanel VerticalAlignment="Center" Margin="10">
+                    <TextBlock Text="Camera : " VerticalAlignment="Center"/>
+                    <ComboBox Width="250" Height="80" ItemsSource="{Binding SelectorSettingList}" DisplayMemberPath="Name" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
+                              SelectedItem="{Binding SelectorSetting}" SelectionChanged="ComboBox_SelectionChanged" FontSize="30" />
+                </WrapPanel>
+            </GroupBox>
+
+            <GroupBox Header="Brightness Setting"  Margin="5" BorderThickness="3" Height="180">
+                <WrapPanel VerticalAlignment="Center">
+                    <TextBlock Text="Left : "/>
+                    <TextBox Text="{Binding SelectorSetting.BrightTHR.LeftTHR}"/>
+                    <TextBlock Text="Middle : "/>
+                    <TextBox Text="{Binding SelectorSetting.BrightTHR.MiddleTHR}"/>
+                    <TextBlock Text="Right : "/>
+                    <TextBox Text="{Binding SelectorSetting.BrightTHR.RightTHR}"/>
+                </WrapPanel>
+            </GroupBox>
+
+            <GroupBox Header="Grid Setting" Margin="5" BorderThickness="3" Height="180" VerticalAlignment="Top">
+                <WrapPanel VerticalAlignment="Center">
+                    <TextBlock Text="Left Grid: "/>
+                    <TextBox Text="{Binding SelectorSetting.LeftGrid}"/>
+                    <TextBlock Text="Right Grid : " Margin="10,0,0,0"/>
+                    <TextBox Text="{Binding SelectorSetting.RightGrid}"/>
+                </WrapPanel>
+            </GroupBox>
+        </StackPanel>
+    </Grid>
+</UserControl>
