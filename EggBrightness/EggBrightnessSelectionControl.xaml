@@ -8,9 +8,8 @@
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="400"/>
+            <RowDefinition Height="370"/>
             <RowDefinition/>
-            <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
@@ -29,7 +28,7 @@
                 <Setter Property="Height" Value="50"/>
             </Style>
             <Style TargetType="local:ImageSelectControl">
-                <Setter Property="Width" Value="630"/>
+                <Setter Property="Width" Value="620"/>
             </Style>
         </Grid.Resources>
 
@@ -62,6 +61,8 @@
                     <TextBlock Text="Camera : " VerticalAlignment="Center"/>
                     <ComboBox Width="250" Height="80" ItemsSource="{Binding SelectorSettingList}" DisplayMemberPath="Name" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
                               SelectedItem="{Binding SelectorSetting}" SelectionChanged="ComboBox_SelectionChanged" FontSize="30" />
+
+                    <Button Click="FindContour_OnClick" Content="Contour" Margin="20,0,0,0" Visibility="Collapsed"/>
                 </WrapPanel>
             </GroupBox>
 

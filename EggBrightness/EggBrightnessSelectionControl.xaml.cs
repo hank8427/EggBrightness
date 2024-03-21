@@ -26,7 +26,7 @@ namespace EggBrightness
     /// </summary>
     public partial class EggBrightnessSelectionControl : UserControl, INotifyPropertyChanged
     {
-        public BrighetnessSelectorSetting SelectorSetting { get => EggBrightnessSelector.SelectorSetting; set { EggBrightnessSelector.SelectorSetting = value; }}
+        public BrighetnessSelectorSetting SelectorSetting { get; set; }
         public List<BrighetnessSelectorSetting> SelectorSettingList { get; set; }
         public int LeftIndex { get; set; }
         public int MiddleIndex { get; set; }
@@ -64,19 +64,19 @@ namespace EggBrightness
         {
             SelectorSettingList = new List<BrighetnessSelectorSetting>
             {
-                new BrighetnessSelectorSetting(){ Name="CameraLeft", LeftGrid = 408, RightGrid=816, BrightTHR = new BrightTHR()},
-                new BrighetnessSelectorSetting(){ Name="CameraUp", LeftGrid = 408, RightGrid=816, BrightTHR = new BrightTHR()},
-                new BrighetnessSelectorSetting(){ Name="CameraRight", LeftGrid = 408, RightGrid=816, BrightTHR = new BrightTHR()},
+                new BrighetnessSelectorSetting(){ Name="CameraLeft", LeftGrid = 816, RightGrid=1632, BrightTHR = new BrightTHR()},
+                new BrighetnessSelectorSetting(){ Name="CameraUp", LeftGrid = 816, RightGrid=1632, BrightTHR = new BrightTHR()},
+                new BrighetnessSelectorSetting(){ Name="CameraRight", LeftGrid = 816, RightGrid=1632, BrightTHR = new BrightTHR()},
             };
 
-            EggBrightnessSelector.SelectorSetting = SelectorSetting;
+            //EggBrightnessSelector.SelectorSetting = SelectorSetting;
             SelectorSetting = SelectorSettingList[0];
         }
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            EggBrightnessSelector.SelectorSetting = SelectorSetting;
-            Console.WriteLine(EggBrightnessSelector.SelectorSetting.LeftGrid.ToString());
+            //EggBrightnessSelector.SelectorSetting = SelectorSetting;
+            Console.WriteLine(SelectorSetting.LeftGrid.ToString());
         }
 
         private void MainWindow_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -89,19 +89,19 @@ namespace EggBrightness
                     MessageBox.Show($"Grid Setting must less than image width {width}");
                     if (SelectorSetting.LeftGrid > width)
                     {
-                        EggBrightnessSelector.SelectorSetting.LeftGrid = (int)(width / 3);
+                        SelectorSetting.LeftGrid = (int)(width / 3);
                     }
                     else
                     {
-                        EggBrightnessSelector.SelectorSetting.RightGrid = (int)(width / 3 * 2);
+                        SelectorSetting.RightGrid = (int)(width / 3 * 2);
                     }
                     return;
                 }
                 else if (SelectorSetting.LeftGrid >= SelectorSetting.RightGrid)
                 {
                     MessageBox.Show("LeftGrid must less tha RightGrid");
-                    EggBrightnessSelector.SelectorSetting.LeftGrid = (int)(width / 3);
-                    EggBrightnessSelector.SelectorSetting.RightGrid = (int)(width / 3 * 2);
+                    SelectorSetting.LeftGrid = (int)(width / 3);
+                    SelectorSetting.RightGrid = (int)(width / 3 * 2);
                     return;
                 }
             }
@@ -131,12 +131,12 @@ namespace EggBrightness
 
         private void Combine_OnClick(object sender, RoutedEventArgs e)
         {
-            var result = EggBrightnessSelector.Select(FirstImageViewModel.Mat, SecondImageViewModel.Mat, ThirdImageViewModel.Mat);
-            CombinedImage = ConvertToBitmapImage(result.Bitmap);
+            var result = EggBrightnessSelector.Select(FirstImageViewModel.Mat, SecondImageViewModel.Mat, ThirdImageViewModel.Mat, SelectorSetting);
+            CombinedImage = ConvertToBitmapImage(result?.Bitmap);
 
-            LeftIndex = EggBrightnessSelector.GetTargetImageIndex("Left");
-            MiddleIndex = EggBrightnessSelector.GetTargetImageIndex("Middle");
-            RightIndex = EggBrightnessSelector.GetTargetImageIndex("Right");
+            LeftIndex = EggBrightnessSelector.GetTargetImageIndex("Left", SelectorSetting);
+            MiddleIndex = EggBrightnessSelector.GetTargetImageIndex("Middle", SelectorSetting);
+            RightIndex = EggBrightnessSelector.GetTargetImageIndex("Right", SelectorSetting);
         }
 
         private Mat BitmapImage2Bitmap(BitmapImage bitmapImage)
@@ -178,6 +178,11 @@ namespace EggBrightness
             {
                 return null;
             }
+        }
+
+        private void FindContour_OnClick(object sender, RoutedEventArgs e)
+        {
+            EggBrightnessSelector.FindContour();
         }
     }
 }

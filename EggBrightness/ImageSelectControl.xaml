@@ -8,7 +8,7 @@
              d:DesignHeight="450" d:DesignWidth="800" 
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <StackPanel>
-        <Button Width="50" Height="30" Content="Select" Click="SelectImage_OnClick"/>
+        <Button Width="100" Height="30" Content="Select" Click="SelectImage_OnClick"/>
         <Border Background="Gray" Margin="10">
             <Image Source="{Binding BitmapImage}" Height="300" />
         </Border>
