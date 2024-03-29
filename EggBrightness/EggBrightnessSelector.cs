@@ -27,7 +27,6 @@ namespace EggBrightness
         {
             lock (myLockObject)
             {
-
                 var mats = new List<Mat>() { image1, image2, image3 };
 
                 if (mats.Count(x => x != null) < 3)
@@ -41,6 +40,7 @@ namespace EggBrightness
 
                 int pos = 0;
 
+                //Parallel.ForEach(roiDictionary, pair =>
                 foreach (var pair in roiDictionary)
                 {
                     for (int index = 0; index < 3; index++)
@@ -59,20 +59,36 @@ namespace EggBrightness
                             return null;
                         }
 
-                        var mat = new Mat(mats[index], rect);
+                        var newMat = mats[index].Clone();
+
+                        var mat = new Mat(newMat, rect);
 
                         Mat grayMat = new Mat();
-                        CvInvoke.CvtColor(mat, grayMat, ColorConversion.Rgb2Gray);
+
+                        Mat matDisplay = new Mat();
+
+                        var pixelFormat = mats[index].Bitmap.PixelFormat;
+
+                        if (pixelFormat != PixelFormat.Format8bppIndexed)
+                        {
+                            mat.CopyTo(grayMat);
+                            CvInvoke.CvtColor(grayMat, grayMat, ColorConversion.Rgb2Gray);
+                        }
+                        else
+                        {
+                            mat.CopyTo(grayMat);
+                        }
+
+                        mat.CopyTo(matDisplay);
 
                         pair.Value[index].Index = index;
 
                         pair.Value[index].Brightness = CvInvoke.Mean(grayMat).V0;
-                        pair.Value[index].Mat = mat;
-                        //CvInvoke.Imshow($"{index}-{pos}", grayMat);
+                        pair.Value[index].Mat = matDisplay;
                     }
 
                     pos++;
-                }
+                };
 
                 myRoiDictionary = roiDictionary;
 

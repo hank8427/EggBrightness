@@ -131,7 +131,12 @@ namespace EggBrightness
 
         private void Combine_OnClick(object sender, RoutedEventArgs e)
         {
+            var startTime = DateTime.Now;
             var result = EggBrightnessSelector.Select(FirstImageViewModel.Mat, SecondImageViewModel.Mat, ThirdImageViewModel.Mat, SelectorSetting);
+
+            var stopTime = DateTime.Now;
+            Console.WriteLine((stopTime - startTime).TotalMilliseconds);
+
             CombinedImage = ConvertToBitmapImage(result?.Bitmap);
 
             LeftIndex = EggBrightnessSelector.GetTargetImageIndex("Left", SelectorSetting);
