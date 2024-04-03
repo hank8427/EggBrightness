@@ -139,6 +139,7 @@ namespace EggBrightness
 
             CombinedImage = ConvertToBitmapImage(result?.Bitmap);
 
+            
             LeftIndex = EggBrightnessSelector.GetTargetImageIndex("Left", SelectorSetting);
             MiddleIndex = EggBrightnessSelector.GetTargetImageIndex("Middle", SelectorSetting);
             RightIndex = EggBrightnessSelector.GetTargetImageIndex("Right", SelectorSetting);

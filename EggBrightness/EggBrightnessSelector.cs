@@ -1,6 +1,7 @@
 ﻿using EggBrightness.Properties;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
+using Emgu.CV.Flann;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
 using System;
@@ -10,6 +11,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Channels;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -27,11 +30,32 @@ namespace EggBrightness
         {
             lock (myLockObject)
             {
+
                 var mats = new List<Mat>() { image1, image2, image3 };
+
+                var grayMats = new List<Mat>();
 
                 if (mats.Count(x => x != null) < 3)
                 {
                     return null;
+                }
+
+                foreach (var mat in mats)
+                {
+                    var grayMat = new Mat();
+
+                    if (mat.Bitmap.PixelFormat != PixelFormat.Format8bppIndexed)
+                    {
+                        //var matSplit = mat.Split();
+                        //grayMat = matSplit[0].Clone();
+
+                        grayMat = GetSingleChannelMat(mat, 0);
+                    }
+                    else
+                    {
+                        grayMat = mat.Clone();
+                    }
+                    grayMats.Add(grayMat);
                 }
 
                 var brightnessList = new List<double>();
@@ -56,44 +80,45 @@ namespace EggBrightness
                         if (mats[index].Width < rect.Right || mats[index].Height < rect.Bottom)
                         {
                             MessageBox.Show("Please check image size and Left/Right grid setting.");
-                            return null;
+                            //return null;
                         }
 
-                        var newMat = mats[index].Clone();
+                        var newMat = new Mat(mats[index], rect);
 
-                        var mat = new Mat(newMat, rect);
-
-                        Mat grayMat = new Mat();
-
-                        Mat matDisplay = new Mat();
-
-                        var pixelFormat = mats[index].Bitmap.PixelFormat;
-
-                        if (pixelFormat != PixelFormat.Format8bppIndexed)
-                        {
-                            mat.CopyTo(grayMat);
-                            CvInvoke.CvtColor(grayMat, grayMat, ColorConversion.Rgb2Gray);
-                        }
-                        else
-                        {
-                            mat.CopyTo(grayMat);
-                        }
-
-                        mat.CopyTo(matDisplay);
+                        var newGrayMat = new Mat(grayMats[index], rect);
 
                         pair.Value[index].Index = index;
 
-                        pair.Value[index].Brightness = CvInvoke.Mean(grayMat).V0;
-                        pair.Value[index].Mat = matDisplay;
+                        pair.Value[index].Brightness = CvInvoke.Mean(newGrayMat).V0;
+                        pair.Value[index].Mat = newMat;
                     }
-
+                    
                     pos++;
-                };
 
+
+                };
+                
                 myRoiDictionary = roiDictionary;
 
-                return CombineImage(roiDictionary, setting);
+                grayMats = null;
+
+                var combinedImage = CombineImage(roiDictionary, setting);
+
+                return combinedImage;
             }
+        }
+
+        private static Mat GetSingleChannelMat(Mat mat, int channel)
+        {
+            byte[] data = new byte[mat.Rows * mat.Cols];
+
+            Marshal.Copy(mat.DataPointer + channel * mat.Rows * mat.Cols, data, 0, data.Length);
+
+            Mat extractedMat = new Mat(mat.Rows, mat.Cols, DepthType.Cv8U, 1);
+
+            Marshal.Copy(data, 0, extractedMat.DataPointer, data.Length);
+
+            return extractedMat;   
         }
 
         private static Dictionary<string, List<RoiInfo>> GenerateRoiDictionary()
