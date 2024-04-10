@@ -14,6 +14,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Remoting.Channels;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -204,6 +205,11 @@ namespace EggBrightness
                 CvInvoke.DrawContours(orig, contours, i, new MCvScalar(0, 0, 255), 2);
             }
             CvInvoke.Imshow("Contour", orig);
+        }
+
+        public static bool GetLockIsRelease()
+        {
+            return Monitor.IsEntered(myLockObject);
         }
     }
 }

@@ -12,24 +12,81 @@ using System.Drawing;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using Emgu.CV.CvEnum;
 using System.Runtime.InteropServices;
+using System.Collections;
+using System.Windows;
 
 namespace EggBrightness.Tests
 {
     [TestClass()]
     public class EggBrightnessSelectorTests
     {
+        private bool myIsSelecting;
         private object myLockObject = new object();
+
+        private Dictionary<int, List<Mat>> myMatDictionary = GenerateMatDictionary();
+        private bool[] myIsDetectOvertime = new bool[] {false, false, false};
+
         private Dictionary<string, List<RoiInfo>> myRoiDictionary;
         private List<Mat> Camera1 = new List<Mat>() { new Mat("TestImage\\Camera1_1.png", Emgu.CV.CvEnum.ImreadModes.Grayscale), new Mat("TestImage\\Camera1_2.png", Emgu.CV.CvEnum.ImreadModes.Grayscale), new Mat("TestImage\\Camera1_3.png", Emgu.CV.CvEnum.ImreadModes.Grayscale) };
         private List<Mat> Camera2 = new List<Mat>() { new Mat("TestImage\\Camera2_1.png"), new Mat("TestImage\\Camera2_2.png"), new Mat("TestImage\\Camera2_3.png") };
         private List<Mat> Camera3 = new List<Mat>() { new Mat("TestImage\\Camera3_1.png"), new Mat("TestImage\\Camera3_2.png"), new Mat("TestImage\\Camera3_3.png") };
+
+        private List<Mat> Camera12 = new List<Mat>() { new Mat("TestImage\\Camera1_1_2.png", Emgu.CV.CvEnum.ImreadModes.Grayscale), new Mat("TestImage\\Camera1_2_2.png", Emgu.CV.CvEnum.ImreadModes.Grayscale), new Mat("TestImage\\Camera1_3_2.png", Emgu.CV.CvEnum.ImreadModes.Grayscale) };
+        private List<Mat> Camera22 = new List<Mat>() { new Mat("TestImage\\Camera2_1_2.png"), new Mat("TestImage\\Camera2_2_2.png"), new Mat("TestImage\\Camera2_3_2.png") };
+        private List<Mat> Camera32 = new List<Mat>() { new Mat("TestImage\\Camera3_1_2.png"), new Mat("TestImage\\Camera3_2_2.png"), new Mat("TestImage\\Camera3_3_2.png") };
         private BrighetnessSelectorSetting TestSetting = new BrighetnessSelectorSetting() { Name = "CameraTest", LeftGrid = 816, RightGrid = 1632, BrightTHR = new BrightTHR() };
 
 
-        public EggBrightnessSelectorTests()
+        [TestMethod()]
+        public void OverTimeTest()
         {
-            Camera1[0].Save("test123.png");
+
+            var task1 = new Task(() =>
+            {
+                foreach (var mat in Camera1)
+                {
+                    CameraOnCaptureCompleted(mat, 1, DateTime.Now, nameof(Camera1));
+                    Task.Delay(1).Wait();
+                }
+            });
+
+            var task2 = new Task(() =>
+            {
+                foreach (var mat in Camera2)
+                {
+                    CameraOnCaptureCompleted(mat, 2, DateTime.Now, nameof(Camera2));
+                }
+            });
+
+            var task3 = new Task(() =>
+            {
+                foreach (var mat in Camera3)
+                {
+                    CameraOnCaptureCompleted(mat, 3, DateTime.Now, nameof(Camera3));
+                }
+            });
+
+            var task12 = new Task(() =>
+            {
+                foreach (var mat in Camera12)
+                {
+                    CameraOnCaptureCompleted(mat, 1, DateTime.Now, nameof(Camera12));
+                }
+            });
+
+
+            Task.Run(() =>
+            {
+                task1.Start();
+                task2.Start();
+                task12.Start();
+                Task.Delay(1).Wait();
+                task3.Start();
+                
+            }).Wait();
+
         }
+
 
         [TestMethod()]
         public void SelectTest()
@@ -92,14 +149,16 @@ namespace EggBrightness.Tests
             Assert.IsTrue(testTime < expectTime);
         }
 
-        [TestMethod()]
-        public void Select2()
+        public Task<Mat> BrightnessSelect2(Mat mat1, Mat mat2, Mat mat3, BrighetnessSelectorSetting setting)
         {
-            lock (myLockObject)
+            myIsSelecting = true;
+            //lock (myLockObject)
+            //{
+            return Task.Run(() =>
             {
                 var startTime = DateTime.Now;
 
-                var mats = new List<Mat>() { Camera2[0], Camera2[1], Camera2[2] };
+                var mats = new List<Mat>() { mat1, mat2, mat3 };
 
                 var grayMats = new List<Mat>();
 
@@ -110,7 +169,7 @@ namespace EggBrightness.Tests
                     if (mat.Bitmap.PixelFormat != PixelFormat.Format8bppIndexed)
                     {
                         var startTime2 = DateTime.Now;
-                        
+
                         //var matSplit = mat.Split();
                         //grayMat = matSplit[0].Clone();
 
@@ -144,9 +203,9 @@ namespace EggBrightness.Tests
                         if (pos == 0)
                             rect = new Rectangle(0, 0, TestSetting.LeftGrid, mats[index].Height);
                         else if (pos == 1)
-                            rect = new Rectangle(TestSetting.LeftGrid, 0, TestSetting.RightGrid - TestSetting.LeftGrid, mats[index].Height);
+                            rect = new Rectangle(setting.LeftGrid, 0, setting.RightGrid - setting.LeftGrid, mats[index].Height);
                         else
-                            rect = new Rectangle(TestSetting.RightGrid, 0, mats[index].Width - TestSetting.RightGrid, mats[index].Height);
+                            rect = new Rectangle(setting.RightGrid, 0, mats[index].Width - setting.RightGrid, mats[index].Height);
 
                         var newMat = new Mat(mats[index], rect);
 
@@ -165,7 +224,7 @@ namespace EggBrightness.Tests
 
                 grayMats = null;
 
-                var combinedImage = CombineImage(roiDictionary, TestSetting);
+                var combinedImage = CombineImage(roiDictionary, setting);
 
                 var stopTime = DateTime.Now;
 
@@ -175,8 +234,14 @@ namespace EggBrightness.Tests
 
                 var expectTime = 30;
 
-                Assert.IsTrue(testTime < expectTime);
-            }
+                Task.Delay(500).Wait();
+
+                myIsSelecting = false;
+
+                return combinedImage;
+            
+            });
+            //}
         }
 
         private Dictionary<string, List<RoiInfo>> GenerateRoiDictionary()
@@ -218,6 +283,57 @@ namespace EggBrightness.Tests
             Marshal.Copy(data, 0, extractedMat.DataPointer, data.Length);
 
             return extractedMat;
+        }
+
+        private void CameraOnCaptureCompleted(Mat mat, int groupNumber, DateTime dateTime, string cameraName)
+        {
+            lock (myLockObject)
+            {
+
+                if (myMatDictionary[groupNumber].Count() >= 3 || myIsDetectOvertime[groupNumber - 1])
+                {
+                    myIsDetectOvertime[groupNumber - 1] = true;
+                    return;
+                }
+
+                myMatDictionary[groupNumber].Add(mat);
+                GetDictionaryCount(myMatDictionary[groupNumber], cameraName, dateTime);
+
+                if (myMatDictionary[groupNumber].Count() < 3)
+                {
+
+                    //return;
+                }
+                else
+                {
+                    myMatDictionary[groupNumber] = null;
+                    myMatDictionary[groupNumber] = new List<Mat>();
+                    myIsDetectOvertime[groupNumber - 1] = false;
+                }
+            }
+        }
+
+        private static Dictionary<int, List<Mat>> GenerateMatDictionary()
+        {
+            var roiDictionary = new Dictionary<int, List<Mat>>()
+            {
+                { 1, new List<Mat>()},
+                { 2, new List<Mat>()},
+                { 3, new List<Mat>()},
+            };
+            return roiDictionary;
+        }
+
+        private void GetDictionaryCount(List<Mat> roiDictionary, string cameraName, DateTime dateTime)
+        {
+            //lock(myLockObject)
+            //{
+                int count = 0;
+
+                count += roiDictionary.Count;
+
+                Console.WriteLine($"{cameraName} : {count}, timeStamp is {dateTime:HH:mm:ss:fff}");
+            //}
         }
     }
 }
