@@ -41,24 +41,6 @@ namespace EggBrightness
                     return null;
                 }
 
-                //foreach (var mat in mats)
-                //{
-                //    var grayMat = new Mat();
-
-                //    if (mat.Bitmap.PixelFormat != PixelFormat.Format8bppIndexed)
-                //    {
-                //        //var matSplit = mat.Split();
-                //        //grayMat = matSplit[0].Clone();
-
-                //        grayMat = GetSingleChannelMat(mat, 0);
-                //    }
-                //    else
-                //    {
-                //        grayMat = mat.Clone();
-                //    }
-                //    grayMats.Add(grayMat);
-                //}
-
                 var brightnessList = new List<double>();
 
                 var roiDictionary = GenerateRoiDictionary();
@@ -88,11 +70,8 @@ namespace EggBrightness
                         
                         var newMat = new Mat(mats[index], rect);
                         var temp = CvInvoke.Mean(newMat);
-                        pair.Value[index].Brightness = CvInvoke.Mean(newMat).V0;
-
-                        //var newGrayMat = new Mat(grayMats[index], rect);
-                        //var temp = CvInvoke.Mean(newMat);
-                        //pair.Value[index].Brightness = CvInvoke.Mean(newGrayMat).V0;
+                        var brightness = (temp.V0 + temp.V1 + temp.V2)/3;
+                        pair.Value[index].Brightness = brightness;
 
                         pair.Value[index].Mat = newMat;
                     }
