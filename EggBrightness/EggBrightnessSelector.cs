@@ -41,23 +41,23 @@ namespace EggBrightness
                     return null;
                 }
 
-                foreach (var mat in mats)
-                {
-                    var grayMat = new Mat();
+                //foreach (var mat in mats)
+                //{
+                //    var grayMat = new Mat();
 
-                    if (mat.Bitmap.PixelFormat != PixelFormat.Format8bppIndexed)
-                    {
-                        //var matSplit = mat.Split();
-                        //grayMat = matSplit[0].Clone();
+                //    if (mat.Bitmap.PixelFormat != PixelFormat.Format8bppIndexed)
+                //    {
+                //        //var matSplit = mat.Split();
+                //        //grayMat = matSplit[0].Clone();
 
-                        grayMat = GetSingleChannelMat(mat, 0);
-                    }
-                    else
-                    {
-                        grayMat = mat.Clone();
-                    }
-                    grayMats.Add(grayMat);
-                }
+                //        grayMat = GetSingleChannelMat(mat, 0);
+                //    }
+                //    else
+                //    {
+                //        grayMat = mat.Clone();
+                //    }
+                //    grayMats.Add(grayMat);
+                //}
 
                 var brightnessList = new List<double>();
 
@@ -84,13 +84,16 @@ namespace EggBrightness
                             //return null;
                         }
 
-                        var newMat = new Mat(mats[index], rect);
-
-                        var newGrayMat = new Mat(grayMats[index], rect);
-
                         pair.Value[index].Index = index;
+                        
+                        var newMat = new Mat(mats[index], rect);
+                        var temp = CvInvoke.Mean(newMat);
+                        pair.Value[index].Brightness = CvInvoke.Mean(newMat).V0;
 
-                        pair.Value[index].Brightness = CvInvoke.Mean(newGrayMat).V0;
+                        //var newGrayMat = new Mat(grayMats[index], rect);
+                        //var temp = CvInvoke.Mean(newMat);
+                        //pair.Value[index].Brightness = CvInvoke.Mean(newGrayMat).V0;
+
                         pair.Value[index].Mat = newMat;
                     }
                     
