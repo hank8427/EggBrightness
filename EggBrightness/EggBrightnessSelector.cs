@@ -34,9 +34,11 @@ namespace EggBrightness
 
                 var mats = new List<Mat>() { image1, image2, image3 };
 
+                var sortedMats = SortMats(mats);
+
                 var grayMats = new List<Mat>();
 
-                if (mats.Count(x => x != null) < 3)
+                if (sortedMats.Count(x => x != null) < 3)
                 {
                     return null;
                 }
@@ -47,6 +49,8 @@ namespace EggBrightness
 
                 int pos = 0;
 
+                var offset = new int[]{0, 60, 110};
+
                 //Parallel.ForEach(roiDictionary, pair =>
                 foreach (var pair in roiDictionary)
                 {
@@ -54,21 +58,28 @@ namespace EggBrightness
                     {
                         var rect = new Rectangle();
                         if (pos == 0)
-                            rect = new Rectangle(0, 0, setting.LeftGrid, mats[index].Height);
+                            rect = new Rectangle(0, 0, setting.LeftGrid - offset[index], sortedMats[index].Height);
                         else if (pos == 1)
-                            rect = new Rectangle(setting.LeftGrid, 0, setting.RightGrid - setting.LeftGrid, mats[index].Height);
+                            rect = new Rectangle(setting.LeftGrid - offset[index], 0, setting.RightGrid - setting.LeftGrid, sortedMats[index].Height);
                         else
-                            rect = new Rectangle(setting.RightGrid, 0, mats[index].Width - setting.RightGrid, mats[index].Height);
+                            rect = new Rectangle(setting.RightGrid- offset[index], 0, sortedMats[index].Width - setting.RightGrid, sortedMats[index].Height);
 
-                        if (mats[index].Width < rect.Right || mats[index].Height < rect.Bottom)
+                        if (sortedMats[index].Width < rect.Right || sortedMats[index].Height < rect.Bottom)
                         {
                             MessageBox.Show("Please check image size and Left/Right grid setting.");
                             //return null;
                         }
 
-                        pair.Value[index].Index = index;
-                        
-                        var newMat = new Mat(mats[index], rect);
+                        pair.Value[index].Index = index;                        
+
+                        var newMat = new Mat(sortedMats[index], rect);
+
+                        if (pos == 0 && index > 0)
+                        {
+                            var padding = Mat.Zeros(rect.Height, offset[index], DepthType.Cv8U, 3);
+                            CvInvoke.HConcat(padding, newMat, newMat);
+                        }
+
                         var temp = CvInvoke.Mean(newMat);
                         var brightness = (temp.V0 + temp.V1 + temp.V2)/3;
                         pair.Value[index].Brightness = brightness;
@@ -89,6 +100,30 @@ namespace EggBrightness
 
                 return combinedImage;
             }
+        }
+
+        private static List<Mat> SortMats(List<Mat> mats)
+        {
+            List<double> brightness = new List<double>();
+
+            for(int i = 0; i < mats.Count; i++)
+            {
+                var averageValue = CvInvoke.Mean(mats[i]);
+                brightness.Add((averageValue.V0 + averageValue.V1 + averageValue.V2)/3);
+            }
+
+            brightness.IndexOf(brightness.Min());
+            
+            brightness.IndexOf(brightness.Max());
+
+            mats.Sort((mat1, mat2) =>
+            {
+                double bright1 = (CvInvoke.Mean(mat1).V0 + CvInvoke.Mean(mat1).V1 + CvInvoke.Mean(mat1).V2) / 3;
+                double bright2 = (CvInvoke.Mean(mat2).V0 + CvInvoke.Mean(mat2).V1 + CvInvoke.Mean(mat2).V2) / 3;
+                return bright1.CompareTo(bright2);
+            });
+
+            return mats;
         }
 
         private static Mat GetSingleChannelMat(Mat mat, int channel)
