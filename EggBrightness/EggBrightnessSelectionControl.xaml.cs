@@ -190,5 +190,26 @@ namespace EggBrightness
         {
             EggBrightnessSelector.FindContour();
         }
+
+        private void SaveImage_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (CombinedImage != null)
+            {
+                var imageToSave = CombinedImage.Clone();
+
+                if (!Directory.Exists("Images"))
+                {
+                    Directory.CreateDirectory("Images");
+                }
+
+                BitmapEncoder encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(imageToSave));
+
+                using (var fileStream = new System.IO.FileStream($"Images\\{DateTime.Now:yyyyMMddHHmmssfff}.Bmp", System.IO.FileMode.Create))
+                {
+                    encoder.Save(fileStream);
+                }
+            }
+        }
     }
 }

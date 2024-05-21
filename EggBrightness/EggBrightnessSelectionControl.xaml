@@ -43,7 +43,10 @@
         <GroupBox Header="Combine" Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="2" Margin="5" BorderThickness="3">
             <StackPanel Margin="10">
                 <StackPanel >
-                    <Button Content="Combine" Width="100" Height="40" Click="Combine_OnClick"/>
+                    <WrapPanel HorizontalAlignment="Center">
+                        <Button Content="Combine" Width="100" Height="40" Click="Combine_OnClick"/>
+                        <Button Content="Save Image" Width="100" Height="40" Margin="20,0,0,0" Click="SaveImage_OnClick" />
+                    </WrapPanel>
                     <Image Source="{Binding CombinedImage}" Height="470" Margin="5"/>
                 </StackPanel>
 

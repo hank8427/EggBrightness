@@ -23,6 +23,7 @@ namespace EggBrightness
     public static class EggBrightnessSelector
     {
         private static object myLockObject = new object();
+
         private static Dictionary<string, List<RoiInfo>> myRoiDictionary;
         public static List<BrighetnessSelectorSetting> SelectorSettingList { get; set; }
         //public static BrighetnessSelectorSetting SelectorSetting { get; set; } = new BrighetnessSelectorSetting();
@@ -50,6 +51,7 @@ namespace EggBrightness
                         //grayMat = matSplit[0].Clone();
 
                         grayMat = GetSingleChannelMat(mat, 0);
+                        grayMat.Save("grayMat.png");
                     }
                     else
                     {
@@ -110,15 +112,25 @@ namespace EggBrightness
 
         private static Mat GetSingleChannelMat(Mat mat, int channel)
         {
-            byte[] data = new byte[mat.Rows * mat.Cols];
 
-            Marshal.Copy(mat.DataPointer + channel * mat.Rows * mat.Cols, data, 0, data.Length);
+            byte[] newMatData = new byte[mat.Rows * mat.Cols];
+
+            var originData = mat.GetData();
+
+            int index = 0;
+            for (int row = 0; row < mat.Rows; row++)
+            {
+                for (int col = 0; col < mat.Cols; col++)
+                {
+                    newMatData[index++] = (byte)originData.GetValue(row, col, channel);
+                }
+            }
 
             Mat extractedMat = new Mat(mat.Rows, mat.Cols, DepthType.Cv8U, 1);
 
-            Marshal.Copy(data, 0, extractedMat.DataPointer, data.Length);
+            Marshal.Copy(newMatData, 0, extractedMat.DataPointer, newMatData.Length);
 
-            return extractedMat;   
+            return extractedMat;
         }
 
         private static Dictionary<string, List<RoiInfo>> GenerateRoiDictionary()
