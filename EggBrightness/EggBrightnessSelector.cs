@@ -192,7 +192,36 @@ namespace EggBrightness
             //var index = roiList.OrderBy(x => Math.Abs(x.Brightness - SelectorSetting.BrightTHR.LeftTHR)).First().Index;
             var index = myRoiDictionary[position].OrderBy(x => Math.Abs(x.Brightness - brightTHR)).First().Index;
 
-            return index;
+            return index+1;
+        }
+
+        //變更，此項可能沒有實際功能
+        public static int GetTargetImageBright(string position, BrighetnessSelectorSetting setting)
+        {
+            if (myRoiDictionary == null)
+            {
+                return 0;
+            }
+
+            double brightTHR;
+            switch (position)
+            {
+                case "Left":
+                    brightTHR = setting.BrightTHR.LeftTHR;
+                    break;
+                case "Middle":
+                    brightTHR = setting.BrightTHR.MiddleTHR;
+                    break;
+                case "Right":
+                    brightTHR = setting.BrightTHR.RightTHR;
+                    break;
+                default: return 0;
+            }
+
+            //var index = roiList.OrderBy(x => Math.Abs(x.Brightness - SelectorSetting.BrightTHR.LeftTHR)).First().Index;
+            var index = myRoiDictionary[position].OrderBy(x => Math.Abs(x.Brightness - brightTHR)).First().Brightness;
+
+            return (int)index;
         }
 
         public static void FindContour()
