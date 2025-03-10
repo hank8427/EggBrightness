@@ -31,6 +31,11 @@ namespace EggBrightness
         public int LeftIndex { get; set; }
         public int MiddleIndex { get; set; }
         public int RightIndex { get; set; }
+        //變更
+        public int LeftLimit{ get; set; }
+        public int MiddleLimit { get; set; }
+        public int RightLimit { get; set; }
+
         public BitmapImage CombinedImage { get; set; }
         public ImageViewModel FirstImageViewModel { get; set; }
         public ImageViewModel SecondImageViewModel { get; set; }
@@ -64,6 +69,7 @@ namespace EggBrightness
         {
             SelectorSettingList = new List<BrighetnessSelectorSetting>
             {
+                //變更
                 new BrighetnessSelectorSetting(){ Name="CameraLeft", LeftGrid = 816, RightGrid=1632, BrightTHR = new BrightTHR()},
                 new BrighetnessSelectorSetting(){ Name="CameraUp", LeftGrid = 816, RightGrid=1632, BrightTHR = new BrightTHR()},
                 new BrighetnessSelectorSetting(){ Name="CameraRight", LeftGrid = 816, RightGrid=1632, BrightTHR = new BrightTHR()},
@@ -143,6 +149,11 @@ namespace EggBrightness
             LeftIndex = EggBrightnessSelector.GetTargetImageIndex("Left", SelectorSetting);
             MiddleIndex = EggBrightnessSelector.GetTargetImageIndex("Middle", SelectorSetting);
             RightIndex = EggBrightnessSelector.GetTargetImageIndex("Right", SelectorSetting);
+
+            //變更
+            LeftLimit = EggBrightnessSelector.GetTargetImageBright("Left", SelectorSetting);
+            MiddleLimit = EggBrightnessSelector.GetTargetImageBright("Middle", SelectorSetting);
+            RightLimit = EggBrightnessSelector.GetTargetImageBright("Right", SelectorSetting);
         }
 
         private Mat BitmapImage2Bitmap(BitmapImage bitmapImage)
