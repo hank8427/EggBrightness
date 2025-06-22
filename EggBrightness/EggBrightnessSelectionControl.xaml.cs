@@ -26,15 +26,15 @@ namespace EggBrightness
     /// </summary>
     public partial class EggBrightnessSelectionControl : UserControl, INotifyPropertyChanged
     {
-        public BrighetnessSelectorSetting SelectorSetting { get; set; }
-        public List<BrighetnessSelectorSetting> SelectorSettingList { get; set; }
+        public BrightnessSelectorSetting SelectorSetting { get; set; }
+        public List<BrightnessSelectorSetting> SelectorSettingList { get; set; }
         public int LeftIndex { get; set; }
         public int MiddleIndex { get; set; }
         public int RightIndex { get; set; }
         //變更
-        public int LeftLimit{ get; set; }
-        public int MiddleLimit { get; set; }
-        public int RightLimit { get; set; }
+        public double LeftLimit{ get; set; }
+        public double MiddleLimit { get; set; }
+        public double RightLimit { get; set; }
 
         public BitmapImage CombinedImage { get; set; }
         public ImageViewModel FirstImageViewModel { get; set; }
@@ -67,12 +67,12 @@ namespace EggBrightness
 
         private void SelectorSettingListInitialize()
         {
-            SelectorSettingList = new List<BrighetnessSelectorSetting>
+            SelectorSettingList = new List<BrightnessSelectorSetting>
             {
                 //變更
-                new BrighetnessSelectorSetting(){ Name="CameraLeft", LeftGrid = 816, RightGrid=1632, BrightTHR = new BrightTHR()},
-                new BrighetnessSelectorSetting(){ Name="CameraUp", LeftGrid = 816, RightGrid=1632, BrightTHR = new BrightTHR()},
-                new BrighetnessSelectorSetting(){ Name="CameraRight", LeftGrid = 816, RightGrid=1632, BrightTHR = new BrightTHR()},
+                new BrightnessSelectorSetting(){ Name="CameraLeft", LeftGrid = 816, RightGrid=1632, BrightTHR = new BrightTHR()},
+                new BrightnessSelectorSetting(){ Name="CameraUp", LeftGrid = 816, RightGrid=1632, BrightTHR = new BrightTHR()},
+                new BrightnessSelectorSetting(){ Name="CameraRight", LeftGrid = 816, RightGrid=1632, BrightTHR = new BrightTHR()},
             };
 
             //EggBrightnessSelector.SelectorSetting = SelectorSetting;

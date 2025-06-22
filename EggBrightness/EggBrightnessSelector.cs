@@ -25,9 +25,9 @@ namespace EggBrightness
     {
         private static object myLockObject = new object();
         private static Dictionary<string, List<RoiInfo>> myRoiDictionary;
-        public static List<BrighetnessSelectorSetting> SelectorSettingList { get; set; }
+        public static List<BrightnessSelectorSetting> SelectorSettingList { get; set; }
         //public static BrighetnessSelectorSetting SelectorSetting { get; set; } = new BrighetnessSelectorSetting();
-        public static Mat Select(Mat image1, Mat image2, Mat image3, BrighetnessSelectorSetting setting)
+        public static Mat Select(Mat image1, Mat image2, Mat image3, BrightnessSelectorSetting setting)
         {
             lock (myLockObject)
             {
@@ -150,7 +150,7 @@ namespace EggBrightness
             return roiDictionary;
         }
 
-        private static Mat CombineImage(Dictionary<string, List<RoiInfo>> roiDict, BrighetnessSelectorSetting setting)
+        private static Mat CombineImage(Dictionary<string, List<RoiInfo>> roiDict, BrightnessSelectorSetting setting)
         {
             var combinedMat = new Mat();
 
@@ -167,7 +167,7 @@ namespace EggBrightness
             return combinedMat;
         }
 
-        public static int GetTargetImageIndex(string position, BrighetnessSelectorSetting setting)
+        public static int GetTargetImageIndex(string position, BrightnessSelectorSetting setting)
         {
             if (myRoiDictionary == null)
             {
@@ -196,7 +196,7 @@ namespace EggBrightness
         }
 
         //變更，此項可能沒有實際功能
-        public static int GetTargetImageBright(string position, BrighetnessSelectorSetting setting)
+        public static double GetTargetImageBright(string position, BrightnessSelectorSetting setting)
         {
             if (myRoiDictionary == null)
             {
@@ -219,9 +219,9 @@ namespace EggBrightness
             }
 
             //var index = roiList.OrderBy(x => Math.Abs(x.Brightness - SelectorSetting.BrightTHR.LeftTHR)).First().Index;
-            var index = myRoiDictionary[position].OrderBy(x => Math.Abs(x.Brightness - brightTHR)).First().Brightness;
+            var brigtness = myRoiDictionary[position].OrderBy(x => Math.Abs(x.Brightness - brightTHR)).First().Brightness;
 
-            return (int)index;
+            return brigtness;
         }
 
         public static void FindContour()

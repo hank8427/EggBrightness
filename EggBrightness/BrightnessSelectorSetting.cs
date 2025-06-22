@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EggBrightness
 {
-    public class BrighetnessSelectorSetting
+    public class BrightnessSelectorSetting
     {
         public string Name { get; set; }
         public int LeftGrid {  get; set; }
